@@ -1,4 +1,4 @@
-# AI-Research-Agent
+# Wanos AI Agent
 
 Autonomous financial research agent using LangGraph with a Plan-Execute-Review loop. Queries internal Pinecone vector store for structured research and produces validated, high-accuracy investment analysis reports.
 
