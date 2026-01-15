@@ -1,0 +1,15 @@
+# Python ignores
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+
+# Virtual Environment
+ai_agent/
+
+# Git
+.gitignore
+
+# Project-specific
+.env

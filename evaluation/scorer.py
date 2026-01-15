@@ -1,12 +1,14 @@
-from langchain_openai import ChatOpenAI
 from pydantic import BaseModel, Field
+from langchain_openai import ChatOpenAI
 
-class GradeSchema(BaseModel):
-    score: int = Field(description="Score from 0 to 100")
-    critique: str = Field(description="Why this score was given")
+'''
+force LLM to output structured audit with score and critique
+'''
 
-def get_report_score(report_content):
-    llm = ChatOpenAI(model="gpt-4o")
-    # Forces the AI to follow the GradeSchema exactly
-    structured_llm = llm.with_structured_output(GradeSchema)
-    return structured_llm.invoke(report_content)
+class Audit(BaseModel):
+    score: int = Field(description="1-10 score")
+    critique: str = Field(description="Feedback for the writer")
+
+def grade_report(report: str):
+    llm = ChatOpenAI(model="gpt-4o").with_structured_output(Audit)
+    return llm.invoke(f"Audit this report: {report}")

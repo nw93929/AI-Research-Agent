@@ -1,11 +1,29 @@
-from therapeutic_scheduler import BlockingScheduler
-from agents.graph import executable_agent
+from apscheduler.schedulers.blocking import BlockingScheduler
+from main import run_research
+import asyncio
 
-def start_daily_job():
-    # This is what happens when the alarm goes off
-    executable_agent.invoke({"task": "Daily Market Report", "iteration_count": 0})
+'''
+Scheduler to run research tasks at specified intervals'''
+
+# This wrapper allows the sync scheduler to call your async agent
+def job_wrapper(query):
+    print(f"--- Triggering Scheduled Task: {query} ---")
+    asyncio.run(run_research(query))
 
 scheduler = BlockingScheduler()
-# Set to run every day at 9am
-scheduler.add_job(start_daily_job, 'cron', hour=9)
-scheduler.start()
+
+# My usage: a deep dive into recent AI developments every morning at 9:00 AM
+scheduler.add_job(
+    job_wrapper, 
+    'cron', 
+    hour=9, 
+    minute=0, 
+    args=["Summarize top 5 AI breakthroughs (like a new YOLOE promptable model or new AI tool) from the last 24 hours."]
+)
+
+if __name__ == "__main__":
+    print("Scheduler started. Press Ctrl+C to exit.")
+    try:
+        scheduler.start()
+    except (KeyboardInterrupt, SystemExit):
+        pass

@@ -1,0 +1,81 @@
+services:
+  # The Main Agent API / Scheduler
+  agent_api:
+    build: .
+    env_file: .env
+    depends_on:
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - hf_cache:/root/.cache/huggingface # Persists HF models
+    environment:
+      - PYTHONPATH=/app
+      - HF_HOME=/root/.cache/huggingface
+    command: python workers/scheduler.py
+
+  # The Worker that handles the heavy research
+  worker:
+    build: .
+    env_file: .env
+    depends_on:
+      redis:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+    volumes:
+      - .:/app
+      - hf_cache:/root/.cache/huggingface # Worker also needs the models
+    environment:
+      - PYTHONPATH=/app
+      - HF_HOME=/root/.cache/huggingface
+    command: celery -A workers.tasks worker --loglevel=info
+
+  # Local Model Hub
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    # Optional: Uncomment below if you have an NVIDIA GPU
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+  # Redis Broker
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # Internal Postgres Database
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: research_db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d research_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  ollama_data:
+  postgres_data:
+  hf_cache: # New volume for Hugging Face persistence

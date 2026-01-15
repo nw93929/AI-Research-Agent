@@ -1,7 +1,17 @@
-from langchain_community.utilities import SQLDatabase
+import psycopg2
 import os
 
-def query_internal_db(query):
-    # Connects to your Postgres database using a secret URL
-    db = SQLDatabase.from_uri(os.getenv("DATABASE_URL"))
-    return db.run(query)
+'''
+query internal Postgres database
+'''
+
+def query_internal_db(sql_query: str):
+    conn = psycopg2.connect(os.getenv("POSTGRES_URI"))
+    cur = conn.cursor()
+    try:
+        cur.execute(sql_query)
+        results = cur.fetchall()
+        return f"Database Results: {str(results)}"
+    finally:
+        cur.close()
+        conn.close()

@@ -1,12 +1,20 @@
 import pytest
-from agents.graph import workflow
+from agents.graph import planner_node
+from agents.state import AgentState
 
-def test_workflow_logic():
-    # We provide a fake state with a low score
-    initial_state = {"task": "test", "score": 10, "iteration_count": 0}
+''' Unit test for the planner_node in the research agent graph'''
+
+def test_planner_updates_state():
+    # test state
+    initial_state: AgentState = {
+        "task": "Test research",
+        "plan": [],
+        "research_notes": [],
+        "loop_count": 0
+    }
     
-    # We check if the next step is 'researcher' (the loop-back)
-    # This ensures our "Conditional Edges" are working
-    graph = workflow.compile()
-    next_step = graph.get_next_step(initial_state)
-    assert next_step == "researcher"
+    output = planner_node(initial_state)
+    # Validate the output
+    assert "plan" in output
+    assert len(output["plan"]) > 0
+    assert isinstance(output["plan"], list)
