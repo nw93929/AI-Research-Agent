@@ -31,6 +31,8 @@ Thumbs.db
 .pytest_cache/
 .coverage
 htmlcov/
+WORKFLOW_GUIDE.md
+MODEL_GUIDE.md
 
 # Data files (may contain sensitive info)
 data/processed/
