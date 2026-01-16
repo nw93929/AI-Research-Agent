@@ -10,7 +10,7 @@ This agent implements a self-correcting workflow optimized for financial stock r
 ┌─────────┐      ┌────────────┐       ┌────────┐       ┌────────┐
 │ PLANNER │─────▶│ RESEARCHER │─────▶│ WRITER │─────▶│ GRADER │
 └─────────┘      └────────────┘       └────────┘       └────────┘
-   GPT-4o         Pinecone RAG         GPT-4o          Phi-3
+  GPT-5 Nano       Pinecone RAG         GPT-5 Nano        Phi-3
                         ▲                                  │
                         │         score < 85?              │
                         └──────────────────────────────────┘
@@ -18,7 +18,7 @@ This agent implements a self-correcting workflow optimized for financial stock r
 ```
 
 ### Key Features:
-- **Hybrid LLM Strategy**: Cloud models (GPT-4o) for complex reasoning, local quantized models (Phi-3) for grading
+- **Hybrid LLM Strategy**: Cloud models (GPT-5 Nano) for initial screening, DeepSeekR1 14B for complex reasoning, local quantized models (Phi-3) for grading
 - **RAG Integration**: Pinecone vector database with LlamaIndex for document retrieval
 - **Quality Assurance**: Automated scoring with feedback loops (loops until score ≥ 85 or 3 iterations)
 - **Production-Ready**: Docker Compose setup with Redis task queues, PostgreSQL storage, and scheduled execution
@@ -110,7 +110,7 @@ This agent implements a self-correcting workflow optimized for financial stock r
 
 ## Workflow Explained
 
-### 1. Planner Node (GPT-4o)
+### 1. Planner Node 
 - Decomposes user query into research steps
 - Prioritizes SEC filings, earnings transcripts, industry benchmarks
 - Defines success criteria for each step
@@ -121,7 +121,7 @@ This agent implements a self-correcting workflow optimized for financial stock r
 - Returns top-3 most relevant contexts
 - Accumulates findings across loop iterations
 
-### 3. Writer Node (GPT-4o)
+### 3. Writer Node 
 - Synthesizes research into markdown investment report
 - Enforces structure: Executive Summary, Financials, Valuation, Risks, Thesis
 - Includes both bullish and bearish perspectives
