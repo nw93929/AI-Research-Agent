@@ -49,3 +49,16 @@ data/raw/
 *.csv
 *.json
 *.pkl
+
+# Finance documents (exclude user's proprietary files, but keep folder structure)
+finance_docs/*.pdf
+finance_docs/*.txt
+finance_docs/*.docx
+finance_docs/*.doc
+finance_docs/**/*.pdf
+finance_docs/**/*.txt
+finance_docs/**/*.docx
+finance_docs/**/*.doc
+# Keep these files:
+!finance_docs/README.md
+!finance_docs/.gitkeep
