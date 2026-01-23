@@ -14,11 +14,12 @@ Cost-optimized architecture using three specialized models:
    - Cost: ~$0.15/M input tokens, ~$0.60/M output tokens
    - Use: Quick filtering, planning, portfolio construction
 
-3. **DeepSeek-R1-14B (Local)** - Deep financial reasoning
+3. **DeepSeek-R1-14B-Distill-Qwen (Local)** - Deep financial reasoning
    - Size: 14B parameters (~9GB VRAM with 4-bit quantization)
    - Cost: $0 (runs locally on 12GB VRAM GPU)
    - Use: Investment analysis for stocks that pass screening
    - Benchmarks: 93.9% MATH-500, 69.7% AIME 2024 (beats o1-mini)
+   - Note: Distilled from DeepSeek-R1 into Qwen architecture for better efficiency
 
 ## Cost Comparison (500 stocks screened)
 

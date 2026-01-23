@@ -2,6 +2,8 @@
 
 Autonomous financial research agent using LangGraph with a Plan-Execute-Review loop. Queries internal Pinecone vector store for structured research and produces validated, high-accuracy investment analysis reports.
 
+DISCLAIMER: This project is an experimentation to satisfy my interests, it should not be used for serious financial analysis as it may not be accurate.
+
 ## Architecture Overview
 
 This agent implements a self-correcting workflow optimized for financial stock research:

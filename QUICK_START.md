@@ -243,8 +243,8 @@ curl http://localhost:8000/health
 ## Performance
 
 - **Single stock**: 30-60 seconds
-- **Screening 500 stocks**: 50-60 minutes (with QwQ-32B deep analysis)
-- **Cold start** (first run): +30 seconds (loading Phi-3 + QwQ-32B models)
+- **Screening 500 stocks**: 50-60 minutes (with DeepSeek-R1-14B-Distill-Qwen deep analysis)
+- **Cold start** (first run): +30 seconds (loading Phi-3 + DeepSeek-R1-14B models)
 
 ## Cost Estimates (per query)
 
@@ -257,7 +257,7 @@ curl http://localhost:8000/health
 ### Stock Screening (500 stocks → Top 10)
 - OpenAI API: ~$0.08 (GPT-5-nano screening)
 - FMP API: Free tier (250/day limit)
-- Local QwQ-32B: Free (deep analysis of top 50 stocks)
+- Local DeepSeek-R1-14B: Free (deep analysis of top 50 stocks)
 - Local Phi-3: Free (grading)
 - **Total**: ~$0.08
 

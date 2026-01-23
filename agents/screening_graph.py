@@ -211,7 +211,7 @@ def strategy_scorer_node(state: ScreeningState) -> dict:
     2. Peter Lynch: PEG ratio < 1, earnings growth, industry tailwinds
     3. Benjamin Graham: Deep value (P/B < 1.5, P/E < 15, net-net value)
 
-    Uses LOCAL REASONING MODEL (DeepSeek-R1/QwQ-32B) for deep analysis.
+    Uses LOCAL REASONING MODEL (DeepSeek-R1-14B-Distill-Qwen) for deep analysis.
     This is where we use the powerful model for stocks that passed screening.
     """
     candidates = state["candidates"]

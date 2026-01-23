@@ -14,7 +14,7 @@ This project is an **autonomous financial research agent** built with LangGraph 
 - Risk factor assessment
 - Investment-grade research reports
 
-### 2. Stock Screening (NEW)
+### 2. Stock Screening
 - Screen 500+ stocks from S&P 500, Russell 2000, etc.
 - Quantitative filtering (market cap, profitability, liquidity)
 - Insider trading analysis (SEC Form 4)
@@ -22,7 +22,14 @@ This project is an **autonomous financial research agent** built with LangGraph 
 - Portfolio construction with diversification
 - Top 10 stock recommendations
 
-### 3. n8n Integration
+### 3. Alpha Generation (NEW)
+- **Variant Perception Agent**: Finds where market expectations may be wrong
+- **Catalyst Identification**: Maps events that could prove/disprove thesis
+- **Sentiment Analysis**: AlphaSense-style earnings call analysis
+- **Risk/Reward Scoring**: Kelly Criterion position sizing
+- Key insight: Consensus is already priced in - alpha comes from finding mispricings
+
+### 4. n8n Integration
 - RESTful FastAPI endpoints
 - Background task processing
 - Result storage and retrieval (NEW)
@@ -57,8 +64,8 @@ This project is an **autonomous financial research agent** built with LangGraph 
             ├──────────────┬────────────────┬──────────────┐
             ↓              ↓                ↓              ↓
    ┌─────────────┐  ┌─────────────┐  ┌──────────┐  ┌──────────┐
-   │  QwQ-32B    │  │  Pinecone   │  │   FMP    │  │   SEC    │
-   │  32B (GPU)  │  │  VectorDB   │  │   API    │  │  EDGAR   │
+   │DeepSeek-R1  │  │  Pinecone   │  │   FMP    │  │   SEC    │
+   │  14B (GPU)  │  │  VectorDB   │  │   API    │  │  EDGAR   │
    │    FREE     │  │   Search    │  │Financials│  │ Filings  │
    └─────────────┘  └─────────────┘  └──────────┘  └──────────┘
 
@@ -80,12 +87,13 @@ Cost per screening (500 stocks): $0.08 (vs $3.00 with GPT-4o only)
 - **Latency:** <1 second
 - **Why:** 80% cheaper than GPT-4o for coordination tasks
 
-**3. QwQ-32B (Local GPU)**
+**3. DeepSeek-R1-14B-Distill-Qwen (Local GPU)**
 - **Use:** Deep financial reasoning (stock screening workflow)
-- **Cost:** FREE (runs on your 12GB+ VRAM GPU)
-- **Memory:** 10GB (8-bit quantized)
+- **Cost:** FREE (runs on your 12GB VRAM GPU)
+- **Memory:** ~9GB (4-bit quantized: 7GB weights + 2GB overhead)
 - **Latency:** ~60 seconds per stock
-- **Why:** Superior reasoning capabilities, surpasses o1-mini on complex financial analysis, zero cost
+- **Why:** Distilled from DeepSeek-R1 into Qwen architecture - 93.9% MATH-500 accuracy, 69.7% AIME (beats o1-mini), zero cost
+- **CRITICAL:** Excels at REASONING, not knowledge. Always provide source data via RAG. Use temperature=0.1 for deterministic output.
 
 ## Key Files and Their Purpose
 
@@ -125,6 +133,17 @@ Cost per screening (500 stocks): $0.08 (vs $3.00 with GPT-4o only)
 - `PETER_LYNCH_CRITERIA`: PEG ratio, growth at reasonable price
 - `BENJAMIN_GRAHAM_CRITERIA`: Deep value, margin of safety
 - `STRATEGY_SCORER_SYSTEM`: LLM-based evaluation against criteria
+
+**agents/alpha_agents.py** (NEW - Alpha Generation)
+- Production-grade agents for finding investment edge
+- Modeled after how real hedge fund analysts and AlphaSense work
+- Key insight: Consensus analysis is already priced in - alpha comes from finding where the market is WRONG
+- Classes:
+  - `VariantPerceptionAgent`: Finds where market expectations may be wrong
+  - `CatalystAgent`: Maps upcoming events that could move the stock
+  - `SentimentAgent`: AlphaSense-style earnings call sentiment analysis
+  - `RiskRewardScorer`: Kelly Criterion position sizing
+- All outputs use Pydantic for strict typing and validation
 
 ### API Files
 
@@ -207,7 +226,7 @@ Cost per screening (500 stocks): $0.08 (vs $3.00 with GPT-4o only)
   - `PINECONE_API_KEY` - Vector database
   - `PINECONE_INDEX_NAME` - Index name
   - `FMP_API_KEY` - Financial data (screening only)
-  - `REASONING_MODEL` - Local model choice (qwq-32b, deepseek-r1-14b, qwen2.5-14b)
+  - `REASONING_MODEL` - Local model choice (deepseek-r1-14b, qwen2.5-14b)
 - Optional keys:
   - `POSTGRES_URI` - Database connection
   - `REDIS_URL` - Persistent result storage
@@ -396,10 +415,10 @@ curl -X POST http://localhost:8000/research/screen \
 - **Total**: ~$0.002 per report (99% savings vs GPT-4o)
 
 ### Stock Screening (500 stocks → top 10)
-- **Time**: 50-60 minutes (with QwQ-32B deep analysis)
+- **Time**: 50-60 minutes (with DeepSeek-R1-14B-Distill-Qwen deep analysis)
 - **Cost Breakdown:**
   - GPT-5-nano (screening 500 stocks): ~$0.08
-  - QwQ-32B (analyzing 50 candidates @ 60s each): FREE (local GPU)
+  - DeepSeek-R1-14B (analyzing 50 candidates @ 60s each): FREE (local GPU)
   - Phi-3 (grading): FREE (local)
 - **Total**: **$0.08 per screening** (vs $3.00 with GPT-4o only)
 
@@ -407,7 +426,7 @@ curl -X POST http://localhost:8000/research/screen \
 
 | Architecture | Screening | Deep Analysis | Grading | Total | Savings |
 |--------------|-----------|---------------|---------|-------|---------|
-| **Triple-Model (Current)** | GPT-5-nano: $0.08 | QwQ-32B: $0 | Phi-3: $0 | **$0.08** | **97%** |
+| **Triple-Model (Current)** | GPT-5-nano: $0.08 | DeepSeek-R1-14B: $0 | Phi-3: $0 | **$0.08** | **97%** |
 | Dual-Model | GPT-4o-mini: $0.10 | DeepSeek-R1: $0 | GPT-4o: $0.50 | $0.60 | 80% |
 | GPT-4o Only | GPT-4o: $1.50 | GPT-4o: $1.00 | GPT-4o: $0.50 | $3.00 | 0% |
 
@@ -426,8 +445,81 @@ curl -X POST http://localhost:8000/research/screen \
 | Phi-3 | Grading | 88% | 2s |
 | GPT-5-nano | Planning | 90% | 1s |
 | GPT-5-nano | Writing | 92% | 1s |
-| QwQ-32B | Financial Reasoning | 96% | 60s |
-| **Combined System** | **Full Pipeline** | **93%** | **52 min** |
+| DeepSeek-R1-14B | Financial Reasoning | 93.9%* | 60s |
+| **Combined System** | **Full Pipeline** | **Strong** | **52 min** |
+
+*93.9% is MATH-500 benchmark accuracy - no financial-specific benchmarks exist.
+Model excels at REASONING over provided data, not memorized knowledge.
+
+## Alpha Generation (NEW)
+
+**Key Insight**: Consensus analysis is already priced in. Alpha comes from finding where the market is WRONG.
+
+### Agents (agents/alpha_agents.py)
+
+1. **VariantPerceptionAgent** - Finds where market expectations may be wrong
+   - Analyzes what's "priced in" to current valuation
+   - Identifies bull/bear variants from consensus
+   - Outputs conviction level with probability-weighted scenarios
+
+2. **CatalystAgent** - Maps upcoming events that could move the stock
+   - Earnings, product launches, regulatory decisions
+   - Index rebalancing, lockup expirations
+   - Ties events to variant thesis
+
+3. **SentimentAgent** - AlphaSense-style earnings call analysis
+   - Management confidence scoring (0-100)
+   - Uncertainty language detection
+   - Sentence-level citations (no hallucinations)
+
+4. **RiskRewardScorer** - Kelly Criterion position sizing
+   - Calculates expected value from variant scenarios
+   - Optimal position size (capped at 25% of portfolio)
+   - Entry, stop-loss, and take-profit levels
+
+### Usage
+
+```python
+from agents.alpha_agents import run_alpha_analysis
+
+result = run_alpha_analysis(
+    ticker="NVDA",
+    current_price=145.00,
+    consensus_report="...",  # From existing consensus workflow
+    financial_data={"pe_ratio": 35, "revenue_growth": 0.25},
+    earnings_transcript="..."  # Optional for sentiment analysis
+)
+
+print(result["summary"]["action"])  # "STRONG_BUY", "BUY", "HOLD", "SELL", "PASS"
+print(result["summary"]["position_size"])  # "12% of portfolio"
+print(result["summary"]["thesis"])  # Variant thesis
+```
+
+### How It Works
+
+```
+Consensus Report → Variant Perception Agent → Bull/Bear Scenarios
+                           ↓
+                   Catalyst Agent → Event Timeline
+                           ↓
+              Sentiment Agent (optional) → Management Tone
+                           ↓
+                  Risk/Reward Scorer → Kelly Position Size → Final Recommendation
+```
+
+### Output Example
+
+```
+ALPHA ANALYSIS: NVDA
+======================================================================
+Conviction: HIGH
+Variant Thesis: Market underestimates data center growth...
+Expected Value: +18.5%
+Risk/Reward: 3.2:1
+Action: STRONG_BUY
+Position Size: 15% of portfolio
+Entry: $142.10 | Stop: $125.00 | TP1: $165.00 | TP2: $185.00
+```
 
 ## Installation & Setup
 
@@ -568,6 +660,7 @@ cat .env.example  # Should have placeholders only
 4. **Screening Phase**: Built complete stock screening system with insider trading
 5. **Security Phase**: Comprehensive API key protection, .gitignore updates
 6. **Retrieval Phase**: Added results storage and polling endpoints for n8n
+7. **Alpha Phase**: Added alpha generation agents for finding market mispricings
 
 ## Current Status
 
@@ -582,12 +675,17 @@ cat .env.example  # Should have placeholders only
 - ✅ GitHub security ensured
 - ✅ OpenAI API key error fixed
 - ✅ Results retrieval system deployed (api_v2.py)
+- ✅ Alpha generation agents (Variant Perception, Catalyst, Sentiment, Risk/Reward)
+- ✅ DeepSeek-R1-14B-Distill-Qwen as local reasoning model (corrected from QwQ-32B)
+- ✅ Pydantic models for strict typing across all agents
+- ✅ Production evaluation suite (evals/test_financial_accuracy.py)
 
 **Next Steps** (Optional):
 - Test api_v2.py with n8n polling workflow
 - Deploy to cloud (Railway, Render, AWS)
 - Set up Redis for persistent result storage
 - Implement async API calls for faster screening
+- Integrate alpha agents into API endpoints
 
 ## Support
 

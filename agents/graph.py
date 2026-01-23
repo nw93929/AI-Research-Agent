@@ -35,11 +35,12 @@ We use THREE specialized models for optimal cost/quality balance:
    - Use: Task decomposition, report writing, general reasoning
    - Why: 80% cheaper than GPT-4o, still excellent for coordination tasks
 
-3. **DeepSeek-R1-14B (Local)** - Deep Financial Analysis
-   - Size: 14B params (4.5GB quantized on GPU)
-   - Cost: FREE (runs on your GPU)
+3. **DeepSeek-R1-14B-Distill-Qwen (Local)** - Deep Financial Analysis
+   - Size: 14B params (~9GB VRAM with 4-bit quantization)
+   - Cost: FREE (runs on your 12GB VRAM GPU)
    - Use: Stock screening, investment analysis (see screening_graph.py)
-   - Why: Matches o1-mini on financial reasoning, runs locally
+   - Why: 93.9% MATH-500, 69.7% AIME (beats o1-mini), runs locally
+   - CRITICAL: Excels at reasoning, not knowledge - always provide source data via RAG
 
 **Cost Savings:** ~97% reduction vs GPT-4o-only ($0.08 vs $3.00 per 500 stocks)
 
@@ -89,8 +90,8 @@ from services.pinecone_llamaindex import query_pinecone_llamaindex
 # 2. GPT-5-nano (API) - Planning, research coordination, writing
 #    - $0.15/M tokens, fast (<1s), excellent for coordination tasks
 #
-# 3. DeepSeek-R1-14B (Local) - Deep financial reasoning (stock screening only)
-#    - Free, 4.5GB VRAM, ~30s latency, superior investment analysis
+# 3. DeepSeek-R1-14B-Distill-Qwen (Local) - Deep financial reasoning (stock screening only)
+#    - Free, ~9GB VRAM (4-bit), ~30s latency, 93.9% MATH-500 accuracy
 #
 # Total cost per 500 stock screening: ~$0.08 (vs $3.00 with GPT-4o only)
 

@@ -186,11 +186,11 @@ def check_model_compatibility(model_choice: ModelChoice) -> dict:
     """
     available_vram = get_available_vram()
 
-    # Estimated VRAM requirements (with quantization)
+    # Estimated VRAM requirements (with 4-bit quantization)
+    # Formula: 14B params × 4 bits ÷ 8 bits/byte = 7GB weights + ~2GB overhead
     vram_requirements = {
-        "deepseek-r1-14b": 4.5,  # 4-bit quantized
-        "qwq-32b": 10.0,         # 8-bit quantized
-        "qwen2.5-14b": 4.0       # 4-bit quantized
+        "deepseek-r1-14b": 9.0,  # 4-bit quantized: 7GB weights + 2GB overhead
+        "qwen2.5-14b": 8.4       # 4-bit quantized: 7GB weights + 1.4GB overhead
     }
 
     required = vram_requirements.get(model_choice, 8.0)
@@ -220,7 +220,7 @@ if __name__ == "__main__":
     print(f"✓ Total VRAM: {torch.cuda.get_device_properties(0).total_memory / 1024**3:.1f} GB")
 
     # Check each model
-    for model_name in ["deepseek-r1-14b", "qwq-32b", "qwen2.5-14b"]:
+    for model_name in ["deepseek-r1-14b", "qwen2.5-14b"]:
         result = check_model_compatibility(model_name)
         print(result["message"])
 
@@ -228,7 +228,7 @@ if __name__ == "__main__":
     print("Testing model loading (this will download ~7GB on first run)...")
     print("="*60)
 
-    # Test load (default: DeepSeek-R1-14B)
+    # Test load (default: DeepSeek-R1-14B-Distill-Qwen)
     response = generate_reasoning_response(
         prompt="Calculate the intrinsic value of a company with: FCF=$500M, growth rate=5%, discount rate=10%. Show your work.",
         model_choice="deepseek-r1-14b",
